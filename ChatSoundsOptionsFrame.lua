@@ -59,44 +59,52 @@ function ChatSoundsOptionsFrame_OnLoad (self)
 	tinsert(UISpecialFrames, self:GetName());
 	self:SetBackdropColor(0,0,0,1)
 	self:SetClampedToScreen(true);
-	self:RegisterEvent("VARIABLES_LOADED");
-end
 
-function ChatSoundsOptionsFrame_OnEvent(self, event, ...)
-	local arg1 = ...;
-	if (event == "VARIABLES_LOADED") then
-		local that = self
-		self = ChatMenu
-		UIMenu_AddButton(self, "ChatSounds", nil, ChatSoundsOptionsFrame_Show)
-		self = that
+	self.name = "ChatSounds"
+	self.okay = ChatSoundsOptionsFrame_OnOkay
+	self.cancel = ChatSoundsOptionsFrame_OnCancel
+	self.default = ChatSoundsOptionsFrame_OnDefaults
+	self.refresh = ChatSoundsOptionsFrame_OnShow
+
+	if InterfaceOptions_AddCategory then
+		InterfaceOptions_AddCategory(self)
 	end
 end
 
 function ChatSoundsOptionsFrame_OnShow(self)
+	ChatSounds_InitConfig()
+	local playerConfig = ChatSounds_Config[ChatSounds_Player]
 	for i = 1, 11 do
 		local incoming = _G["ChatSoundsOptionsFrameGroup"..i.."Incoming"]
 		local outgoing = _G["ChatSoundsOptionsFrameGroup"..i.."Outgoing"]
 
-		UIDropDownMenu_SetSelectedValue(incoming, ChatSounds_Config[ChatSounds_Player].Incoming[groupmap[i]], 0)
-		UIDropDownMenu_SetSelectedValue(outgoing, ChatSounds_Config[ChatSounds_Player].Outgoing[groupmap[i]], 0)
+		UIDropDownMenu_SetSelectedValue(incoming, playerConfig.Incoming[groupmap[i]], 0)
+		UIDropDownMenu_SetSelectedValue(outgoing, playerConfig.Outgoing[groupmap[i]], 0)
 	end
 
-	ChatSoundsOptionsFrameForceWhispersCheckBox:SetChecked (ChatSounds_Config[ChatSounds_Player].ForceWhispers)
+	ChatSoundsOptionsFrameForceWhispersCheckBox:SetChecked (playerConfig.ForceWhispers)
+end
+
+function ChatSoundsOptionsFrame_OnCancel(self)
+	HideUIPanel(self)
 end
 
 function ChatSoundsOptionsFrame_OnOkay(self)
+	ChatSounds_InitConfig()
+	local playerConfig = ChatSounds_Config[ChatSounds_Player]
 	for i = 1, 11 do
 		local incoming = _G["ChatSoundsOptionsFrameGroup"..i.."Incoming"]
 		local outgoing = _G["ChatSoundsOptionsFrameGroup"..i.."Outgoing"]
 
-		ChatSounds_Config[ChatSounds_Player].Incoming[groupmap[i]] = UIDropDownMenu_GetSelectedValue (incoming)
-		ChatSounds_Config[ChatSounds_Player].Outgoing[groupmap[i]] = UIDropDownMenu_GetSelectedValue (outgoing)
+		playerConfig.Incoming[groupmap[i]] = UIDropDownMenu_GetSelectedValue (incoming)
+		playerConfig.Outgoing[groupmap[i]] = UIDropDownMenu_GetSelectedValue (outgoing)
 	end
 
-	ChatSounds_Config[ChatSounds_Player].ForceWhispers = ChatSoundsOptionsFrameForceWhispersCheckBox:GetChecked()
+	playerConfig.ForceWhispers = ChatSoundsOptionsFrameForceWhispersCheckBox:GetChecked()
 end
 
 function ChatSoundsOptionsFrame_OnDefaults(self)
+	ChatSounds_InitConfig()
 	for i = 1, 11 do
 		local incoming = _G["ChatSoundsOptionsFrameGroup"..i.."Incoming"]
 		local outgoing = _G["ChatSoundsOptionsFrameGroup"..i.."Outgoing"]
@@ -108,6 +116,4 @@ function ChatSoundsOptionsFrame_OnDefaults(self)
 	ChatSoundsOptionsFrameForceWhispersCheckBox:SetChecked(ChatSounds_Defaults.ForceWhispers)
 end
 
-function ChatSoundsOptionsFrame_Show(self)
-	ChatSoundsOptionsFrame:Show()
-end
+

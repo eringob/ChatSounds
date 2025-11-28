@@ -5,8 +5,9 @@ ChatSounds_Config  = ChatSounds_Config or {}
 local ChatSounds_label = "|cffFFCC00ChatSounds|r";
 
 local function ChatSounds_Slasher(cmd)
+	ChatSounds_InitConfig()
 	if not cmd or cmd == "" then
-		ChatSoundsOptionsFrame_Show(ChatSoundsOptionsFrame)
+		ChatSoundsOptionsFrame_Show()
 		DEFAULT_CHAT_FRAME:AddMessage(ChatSounds_label..": '/chatsounds ?' or '/chatsounds !help' for other commands.");
 	elseif string.lower(cmd) == "!help" or cmd == "?" then
 		DEFAULT_CHAT_FRAME:AddMessage(ChatSounds_label.." ".. ChatSounds_Version);
@@ -182,4 +183,13 @@ function ChatSounds_ChatFrame_OnEvent (self, event, ...)
 		ChatSounds_PlaySound (ChatSounds_Config[ChatSounds_Player].Outgoing["BNWHISPER"])
 	end
 
+end
+
+function ChatSoundsOptionsFrame_Show()
+	if ChatSoundsOptionsFrame and InterfaceOptionsFrame_OpenToCategory then
+		InterfaceOptionsFrame_OpenToCategory(ChatSoundsOptionsFrame)
+		InterfaceOptionsFrame_OpenToCategory(ChatSoundsOptionsFrame)
+	elseif ChatSoundsOptionsFrame then
+		ChatSoundsOptionsFrame:Show()
+	end
 end
