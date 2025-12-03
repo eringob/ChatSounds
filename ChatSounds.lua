@@ -3,6 +3,16 @@ ChatSounds_Player  = "player"
 ChatSounds_Config  = ChatSounds_Config or {}
 
 local ChatSounds_label = "|cffFFCC00ChatSounds|r";
+local chatFrameHooked = false
+
+local function ChatSounds_TryHookChatFrame()
+	if (not chatFrameHooked) and type(ChatFrame_OnEvent) == "function" then
+		hooksecurefunc("ChatFrame_OnEvent", ChatSounds_ChatFrame_OnEvent)
+		chatFrameHooked = true
+		return true
+	end
+	return false
+end
 
 local function ChatSounds_Slasher(cmd)
 	ChatSounds_InitConfig()
@@ -111,10 +121,17 @@ function ChatSounds_OnEvent(self, event, ...)
 	if (event == "ADDON_LOADED" and arg1 == "ChatSounds" ) then
 
 		ChatSounds_InitConfig();
- 		hooksecurefunc("ChatFrame_OnEvent", ChatSounds_ChatFrame_OnEvent);
+		if not ChatSounds_TryHookChatFrame() then
+			self:RegisterEvent("PLAYER_LOGIN")
+		end
 		-- ChatSounds are now loaded!
 		DEFAULT_CHAT_FRAME:AddMessage(ChatSounds_label.." ".. ChatSounds_Version .. " are loaded.");
 		self:UnregisterEvent("ADDON_LOADED");
+
+	elseif (event == "PLAYER_LOGIN") then
+		if ChatSounds_TryHookChatFrame() then
+			self:UnregisterEvent("PLAYER_LOGIN")
+		end
 
 	elseif (strsub (event, 1, 8) == "CHAT_MSG") then
 		local msgtype = strsub (event, 10)
