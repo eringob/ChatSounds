@@ -45,10 +45,10 @@ local function ChatSounds_Slasher(cmd)
 		cmd = string.lower(cmd)
 		if ChatSounds_Config[ChatSounds_Player].Blacklist[cmd] then
 			ChatSounds_Config[ChatSounds_Player].Blacklist[cmd] = nil
-			DEFAULT_CHAT_FRAME:AddMessage(ChatSounds_label..", cmd .. " removed from Blacklist.");
+			DEFAULT_CHAT_FRAME:AddMessage(ChatSounds_label..": ".. cmd .. " removed from Blacklist.");
 		else
 			ChatSounds_Config[ChatSounds_Player].Blacklist[cmd] = true
-			DEFAULT_CHAT_FRAME:AddMessage(ChatSounds_label..", cmd .. " added to Blacklist.");
+			DEFAULT_CHAT_FRAME:AddMessage(ChatSounds_label..": ".. cmd .. " added to Blacklist.");
 		end
 	end
 end
