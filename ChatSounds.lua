@@ -57,19 +57,7 @@ function ChatSounds_OnLoad(self)
 
 	-- Register Variable Loading and Chat Events.
 	self:RegisterEvent("ADDON_LOADED")
--- 	self:RegisterEvent("CHAT_MSG_WHISPER")
--- 	self:RegisterEvent("CHAT_MSG_WHISPER_INFORM")
--- 	self:RegisterEvent("CHAT_MSG_BN_WHISPER")
--- 	self:RegisterEvent("CHAT_MSG_BN_WHISPER_INFORM")
-	self:RegisterEvent("CHAT_MSG_GUILD")
-	self:RegisterEvent("CHAT_MSG_OFFICER")
-	self:RegisterEvent("CHAT_MSG_PARTY")
-	self:RegisterEvent("CHAT_MSG_PARTY_LEADER")
-	self:RegisterEvent("CHAT_MSG_RAID")
-	self:RegisterEvent("CHAT_MSG_RAID_LEADER")
-	self:RegisterEvent("CHAT_MSG_INSTANCE_CHAT")
-	self:RegisterEvent("CHAT_MSG_INSTANCE_CHAT_LEADER")
-	self:RegisterEvent("CHAT_MSG_CHANNEL")
+	self:RegisterEvent("PLAYER_LOGIN")
 	
 	-- Register Slash Command.
 	SLASH_CHATSOUNDS1 = "/chatsounds"
@@ -147,6 +135,11 @@ end
 -- Chat message filter for WoW 12.0+ API
 function ChatSounds_ChatMessageFilter(frame, event, message, sender, languageName, channelName, ...)
 	local msgtype = string.sub(event, 10)
+	
+	-- Skip if config not ready yet
+	if not ChatSounds_Config or not ChatSounds_Config[ChatSounds_Player] then
+		return false
+	end
 	
 	if msgtype == "CHANNEL" then
 		-- Get additional args specific to CHAT_MSG_CHANNEL
