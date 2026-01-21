@@ -6,7 +6,7 @@
 	<Script file="ChatSounds.lua"/>
 	<Script file="ChatSoundsOptionsFrame.lua"/>
 
-	<Frame name="ChatSoundsFrame" inherits="EventFrame">
+	<Frame name="ChatSoundsFrame">
 		<Scripts>
 			<OnLoad>
 				ChatSounds_OnLoad(self);
