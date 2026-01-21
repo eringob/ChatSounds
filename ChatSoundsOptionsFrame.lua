@@ -12,11 +12,9 @@ groupmap[10] = "BNWHISPER"
 groupmap[11] = "CHANNEL"
 
 function ChatSoundsDropDown_OnShow (self)
-	UIDropDownMenu_SetSelectedID(self, 1, 0)
-	UIDropDownMenu_Initialize(self, ChatSoundsDropDown_Init)
-end
+	local menu = {text = "ChatSounds Sounds", whileDead = 1, isNotSelectable = true}
+	menu.func = ChatSoundsDropDown_OnClick
 
-function ChatSoundsDropDown_Init(self)
 	local sound = {}
 	local i = 1
 	for name, value in pairs(ChatSounds_Sound) do
@@ -24,35 +22,23 @@ function ChatSoundsDropDown_Init(self)
 		i = i + 1
 	end
 
-	table.sort (sound)
+	table.sort(sound)
 
-	local entry;
-	entry = UIDropDownMenu_CreateInfo();
+	-- Add "None" option
+	table.insert(menu, {text = "None", value = nil, func = ChatSoundsDropDown_OnClick})
 
-	entry.text    = "None"
-	entry.value   = nil
-	entry.func    = ChatSoundsDropDown_OnClick
-	entry.checked = false
-	entry.owner   = self
-
-	UIDropDownMenu_AddButton(entry)
-
+	-- Add all sounds
 	for index, value in pairs(sound) do
-
-		entry.text    = value
-		entry.value   = value
-		entry.func    = ChatSoundsDropDown_OnClick
-		entry.checked = false
-		entry.owner   = self
-
-		UIDropDownMenu_AddButton(entry)
+		table.insert(menu, {text = value, value = value, func = ChatSoundsDropDown_OnClick})
 	end
 
+	UIDropDownMenu_Initialize(self, function() UIDropDownMenu_AddButtons(menu) end, "MENU")
 end
 
 function ChatSoundsDropDown_OnClick(self)
-	UIDropDownMenu_SetSelectedValue(self.owner, self.value, 0);
-	ChatSounds_PlaySound(self.value);
+	if self.value then
+		ChatSounds_PlaySound(self.value)
+	end
 end
 
 function ChatSoundsOptionsFrame_OnLoad (self)
@@ -66,7 +52,10 @@ function ChatSoundsOptionsFrame_OnLoad (self)
 	self.default = ChatSoundsOptionsFrame_OnDefaults
 	self.refresh = ChatSoundsOptionsFrame_OnShow
 
-	if InterfaceOptions_AddCategory then
+	if Settings and Settings.RegisterCanvasLayoutCategory then
+		local category = Settings.RegisterCanvasLayoutCategory(self, self.name)
+		Settings.RegisterAddOnCategory(category)
+	elseif InterfaceOptions_AddCategory then
 		InterfaceOptions_AddCategory(self)
 	end
 end
@@ -78,8 +67,20 @@ function ChatSoundsOptionsFrame_OnShow(self)
 		local incoming = _G["ChatSoundsOptionsFrameGroup"..i.."Incoming"]
 		local outgoing = _G["ChatSoundsOptionsFrameGroup"..i.."Outgoing"]
 
-		UIDropDownMenu_SetSelectedValue(incoming, playerConfig.Incoming[groupmap[i]], 0)
-		UIDropDownMenu_SetSelectedValue(outgoing, playerConfig.Outgoing[groupmap[i]], 0)
+		if incoming then
+			if incoming.SetValue then
+				incoming:SetValue(playerConfig.Incoming[groupmap[i]])
+			else
+				UIDropDownMenu_SetSelectedValue(incoming, playerConfig.Incoming[groupmap[i]], 0)
+			end
+		end
+		if outgoing then
+			if outgoing.SetValue then
+				outgoing:SetValue(playerConfig.Outgoing[groupmap[i]])
+			else
+				UIDropDownMenu_SetSelectedValue(outgoing, playerConfig.Outgoing[groupmap[i]], 0)
+			end
+		end
 	end
 
 	ChatSoundsOptionsFrameForceWhispersCheckBox:SetChecked (playerConfig.ForceWhispers)
@@ -96,8 +97,20 @@ function ChatSoundsOptionsFrame_OnOkay(self)
 		local incoming = _G["ChatSoundsOptionsFrameGroup"..i.."Incoming"]
 		local outgoing = _G["ChatSoundsOptionsFrameGroup"..i.."Outgoing"]
 
-		playerConfig.Incoming[groupmap[i]] = UIDropDownMenu_GetSelectedValue (incoming)
-		playerConfig.Outgoing[groupmap[i]] = UIDropDownMenu_GetSelectedValue (outgoing)
+		if incoming then
+			if incoming.GetValue then
+				playerConfig.Incoming[groupmap[i]] = incoming:GetValue()
+			else
+				playerConfig.Incoming[groupmap[i]] = UIDropDownMenu_GetSelectedValue(incoming)
+			end
+		end
+		if outgoing then
+			if outgoing.GetValue then
+				playerConfig.Outgoing[groupmap[i]] = outgoing:GetValue()
+			else
+				playerConfig.Outgoing[groupmap[i]] = UIDropDownMenu_GetSelectedValue(outgoing)
+			end
+		end
 	end
 
 	playerConfig.ForceWhispers = ChatSoundsOptionsFrameForceWhispersCheckBox:GetChecked()
@@ -109,8 +122,20 @@ function ChatSoundsOptionsFrame_OnDefaults(self)
 		local incoming = _G["ChatSoundsOptionsFrameGroup"..i.."Incoming"]
 		local outgoing = _G["ChatSoundsOptionsFrameGroup"..i.."Outgoing"]
 
-		UIDropDownMenu_SetSelectedValue(incoming, ChatSounds_Defaults.Incoming[groupmap[i]], 0)
-		UIDropDownMenu_SetSelectedValue(outgoing, ChatSounds_Defaults.Outgoing[groupmap[i]], 0)
+		if incoming then
+			if incoming.SetValue then
+				incoming:SetValue(ChatSounds_Defaults.Incoming[groupmap[i]])
+			else
+				UIDropDownMenu_SetSelectedValue(incoming, ChatSounds_Defaults.Incoming[groupmap[i]], 0)
+			end
+		end
+		if outgoing then
+			if outgoing.SetValue then
+				outgoing:SetValue(ChatSounds_Defaults.Outgoing[groupmap[i]])
+			else
+				UIDropDownMenu_SetSelectedValue(outgoing, ChatSounds_Defaults.Outgoing[groupmap[i]], 0)
+			end
+		end
 	end
 
 	ChatSoundsOptionsFrameForceWhispersCheckBox:SetChecked(ChatSounds_Defaults.ForceWhispers)
