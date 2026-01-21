@@ -12,9 +12,11 @@ groupmap[10] = "BNWHISPER"
 groupmap[11] = "CHANNEL"
 
 function ChatSoundsDropDown_OnShow (self)
-	local menu = {text = "ChatSounds Sounds", whileDead = 1, isNotSelectable = true}
-	menu.func = ChatSoundsDropDown_OnClick
+	UIDropDownMenu_SetSelectedID(self, 1, 0)
+	UIDropDownMenu_Initialize(self, ChatSoundsDropDown_Init)
+end
 
+function ChatSoundsDropDown_Init(self)
 	local sound = {}
 	local i = 1
 	for name, value in pairs(ChatSounds_Sound) do
@@ -24,21 +26,33 @@ function ChatSoundsDropDown_OnShow (self)
 
 	table.sort(sound)
 
-	-- Add "None" option
-	table.insert(menu, {text = "None", value = nil, func = ChatSoundsDropDown_OnClick})
+	local entry;
+	entry = UIDropDownMenu_CreateInfo();
 
-	-- Add all sounds
+	entry.text    = "None"
+	entry.value   = nil
+	entry.func    = ChatSoundsDropDown_OnClick
+	entry.checked = false
+	entry.owner   = self
+
+	UIDropDownMenu_AddButton(entry)
+
 	for index, value in pairs(sound) do
-		table.insert(menu, {text = value, value = value, func = ChatSoundsDropDown_OnClick})
+
+		entry.text    = value
+		entry.value   = value
+		entry.func    = ChatSoundsDropDown_OnClick
+		entry.checked = false
+		entry.owner   = self
+
+		UIDropDownMenu_AddButton(entry)
 	end
 
-	UIDropDownMenu_Initialize(self, function() UIDropDownMenu_AddButtons(menu) end, "MENU")
 end
 
 function ChatSoundsDropDown_OnClick(self)
-	if self.value then
-		ChatSounds_PlaySound(self.value)
-	end
+	UIDropDownMenu_SetSelectedValue(self.owner, self.value, 0);
+	ChatSounds_PlaySound(self.value);
 end
 
 function ChatSoundsOptionsFrame_OnLoad (self)
